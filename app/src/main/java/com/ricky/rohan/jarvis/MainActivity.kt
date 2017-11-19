@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import co.intentservice.chatui.ChatView
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
@@ -19,13 +20,38 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import co.intentservice.chatui.models.ChatMessage
+import com.ricky.rohan.jarvis.R.id.message
+import kotlinx.coroutines.experimental.channels.NULL_VALUE
+
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val edit = findViewById<View>(R.id.simpleEditText) as  EditText
+        val chatView = findViewById<View>(R.id.chat_view) as ChatView
+        var reply : String? = ""
+        chatView.setOnSentMessageListener(object: ChatView.OnSentMessageListener {
+            override fun sendMessage(chatMessage:ChatMessage):Boolean {
+                // perform actual message sending
+                Fuel.post("https://personalssistantv1.firebaseapp.com/api", listOf("data" to chatMessage.message)).responseString { request, response, result ->
+                    val (value, error) = result
+                    if (error == null) {
+                        reply = value.toString()
+                        //Toast.makeText(this@MainActivity,value.toString(), Toast.LENGTH_SHORT).show()
+                        println(reply)
+                        chatView.addMessage(ChatMessage(reply, System.currentTimeMillis(), ChatMessage.Type.RECEIVED))
+                    } else {
+                        //error handling
+                    }
+                }
+                println(chatMessage.message)
+                return true
+            }
+        })
+
+        /*val edit = findViewById<View>(R.id.simpleEditText) as  EditText
         val button = findViewById<Button>(R.id.button) as Button
         val text = findViewById<View>(R.id.text) as TextView
         println(edit)
@@ -76,10 +102,9 @@ class MainActivity : AppCompatActivity() {
                     x.setText("HI")
                 }
             })
-        }*/
+        }*/*/
         }
     }
-}
 /*async(CommonPool) {
                 //val result = URL("http://personalssistantv1.firebaseapp.com/api").readText()
                 val url = "https://crackiit.online/api"
