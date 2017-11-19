@@ -28,8 +28,9 @@ class MainActivity : AppCompatActivity() {
         val edit = findViewById<View>(R.id.simpleEditText) as  EditText
         val button = findViewById<Button>(R.id.button) as Button
         val text = findViewById<View>(R.id.text) as TextView
+        println(edit)
         button.setOnClickListener {
-            Fuel.post("https://crackiit.online/api",listOf("data" to "Rohan")).body("{data:\"Rohan\"}").response{request, response, result ->
+            Fuel.post("https://personalssistantv1.firebaseapp.com/api", listOf("data" to edit.getText().toString())).responseString{ request, response, result ->
                 val (value, error) = result
                 if (error == null) {
                     text.setText(value.toString())
